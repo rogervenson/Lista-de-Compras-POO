@@ -28,28 +28,28 @@ public class Main {
             opcao = scanner.nextInt();
             scanner.nextLine(); // Limpar buffer.
 
-            if (opcao == 1) { // 1 - Adicionar item
+            if (opcao == 1) { // 1 - Adicionar item OK
                 adicionarItem(lista, scanner);
                 pausar(scanner);
 
-            } else if (opcao == 2) { // 2 - Remover item
+            } else if (opcao == 2) { // 2 - Remover item OK
                 if (lista.getItens().size() > 0) {
                     listarItens(lista, scanner);
                     removerItem(lista, scanner);
                 } else {
-                    estaVazio(nomeArquivoAtual);
+                    estaVazio(lista);
                 }
                 pausar(scanner);
 
-            } else if (opcao == 3) { // 3 - Listar itens
+            } else if (opcao == 3) { // 3 - Listar itens OK
                 if (lista.getItens().size() > 0) {
                     listarItens(lista, scanner);
                 } else {
-                    estaVazio(nomeArquivoAtual);
+                    estaVazio(lista);
                 }
                 pausar(scanner);
 
-            } else if (opcao == 4) { // 4 - Salvar lista
+            } else if (opcao == 4) { // 4 - Salvar lista OK?
                 System.out.print("Digite o nome da lista a ser salva: ");
                 nomeArquivoAtual = scanner.nextLine();
                 salvar(lista, nomeArquivoAtual, scanner);
@@ -123,9 +123,9 @@ public class Main {
             }
             item = scanner.nextInt();
         }
-        scanner.nextLine();
+        scanner.nextLine(); // Limpar buffer
 
-        System.out.printf("\nItem '%s' removido com sucesso.\n", lista.getItens(item - 1));
+        System.out.printf("\nItem '%s' removido com sucesso.\n", lista.getItens().get(item - 1));
         lista.remover(item - 1);
     }
     // Listar itens:
@@ -158,10 +158,11 @@ public class Main {
         }
         if (deveSalvar) {
             try (FileWriter writer = new FileWriter(nomeArquivo + ".txt")) {
-                for (String item : lista) {
+                for (String item : lista.getItens()) {
                     writer.write(item + "\n");
                 }
                 System.out.printf("Salvou a lista '%s' com sucesso.\n", nomeArquivo);
+                lista.setNome(nomeArquivo);
             } catch (IOException e) {
                 System.out.println("Erro ao criar arquivo: " + e.getMessage());
             }
@@ -175,10 +176,10 @@ public class Main {
         if (!arquivo.exists()) {
             return null;
         }
-        ArrayList<String> lista = new ArrayList<>();
+        ListaDeCompras lista = new ListaDeCompras(nomeArquivo);
         try (Scanner scanner = new Scanner(arquivo)) {
             while(scanner.hasNextLine()) {
-                lista.add(scanner.nextLine());
+                lista.adicionar(scanner.nextLine());
             }
             System.out.printf("Lista '%s' importada com sucesso!\n", nomeArquivo);
         } catch (FileNotFoundException e) {
@@ -190,9 +191,9 @@ public class Main {
 
     // MÉTODOS AUXILIARES ESPECÍFICOS:
     // Verificar se a lista já existe:
-    public static void estaVazio(String nomeArquivo) {
+    public static void estaVazio(ListaDeCompras lista) {
         System.out.printf("\nA lista '%s' está vazia.\n",
-                (nomeArquivo.equals("<sem nome>") ? "sem nome" : nomeArquivo));
+                (lista.getNome().equals("<sem nome>") ? "sem nome" : lista.getNome()));
     }
 
     // MÉTODOS AUXILIARES GERAIS:
