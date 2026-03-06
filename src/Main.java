@@ -10,7 +10,6 @@ import java.io.FileNotFoundException;
 
 public class Main {
     public static void main(String[] args) {
-//        ArrayList<String> listaDeCompras = new ArrayList<>();
         ListaDeCompras lista = new ListaDeCompras("<sem nome>");
         Scanner scanner = new Scanner(System.in);
         String nomeArquivoAtual = "<sem nome>";
@@ -18,7 +17,7 @@ public class Main {
         int opcao = 0;
         while (true) {
             clearScreen();
-            mostrarMenu();
+            Menu.mostrar();
 
             while (!scanner.hasNextInt()) { // Verificação do input do usuário (é número inteiro?)
                 System.out.print("Entrada inválida! Favor inserir uma opção: ");
@@ -28,6 +27,7 @@ public class Main {
             opcao = scanner.nextInt();
             scanner.nextLine(); // Limpar buffer.
 
+            // Menu.interacao();
             if (opcao == 1) { // 1 - Adicionar item OK
                 adicionarItem(lista, scanner);
                 pausar(scanner);
@@ -52,14 +52,14 @@ public class Main {
             } else if (opcao == 4) { // 4 - Salvar lista OK?
                 System.out.print("Digite o nome da lista a ser salva: ");
                 nomeArquivoAtual = scanner.nextLine();
-                salvar(lista, nomeArquivoAtual, scanner);
+                ListaService.salvar(lista, nomeArquivoAtual, scanner);
                 pausar(scanner);
 
             } else if (opcao == 5) { // 5 - Carregar lista
                 System.out.print("Digite o nome da lista a ser carregada: ");
                 String tentarCarregar = scanner.nextLine();
 
-                ListaDeCompras listaCarregada = carregar(tentarCarregar);
+                ListaDeCompras listaCarregada = ListaService.carregar(tentarCarregar);
                 if (listaCarregada != null) {
                     lista = listaCarregada;
                     nomeArquivoAtual = tentarCarregar;
@@ -75,7 +75,7 @@ public class Main {
                 if (antesSair) {
                     System.out.print("Digite o nome da lista a ser salva: ");
                     nomeArquivoAtual = scanner.nextLine();
-                    salvar(lista, nomeArquivoAtual, scanner);
+                    ListaService.salvar(lista, nomeArquivoAtual, scanner);
                     System.out.println("Saindo...");
                     break;
                 } else {
@@ -93,9 +93,7 @@ public class Main {
 
     // MÉTODOS BÁSICOS:
     // Mostrar menu inicial:
-    public static void mostrarMenu() {
-        System.out.print("\n1 - Adicionar item\n2 - Remover item\n3 - Listar itens\n4 - Salvar lista\n5 - Carregar lista\n6 - Sair\n\nDigite a opção desejada: ");
-    }
+
     // Adicionar item à lista:
     public static void adicionarItem(ListaDeCompras lista, Scanner scanner) {
         System.out.print("Digite o item que deseja adicionar: ");
@@ -139,55 +137,8 @@ public class Main {
     }
 
     // MÉTODOS DE PERSISTÊNCIA:
-    // Salvar lista:
-    public static void salvar(ListaDeCompras lista, String nomeArquivo, Scanner scanner) {
-        File arquivo = new File(nomeArquivo + ".txt");
-        boolean deveSalvar = true;
-        if (arquivo.exists()) {
-            System.out.printf("Já existe uma lista com nome '%s'. Deseja sobrescrevê-la? [s/n] ", nomeArquivo);
-            String opcao = scanner.nextLine().toLowerCase();
-            while (!opcao.equals("s") && !opcao.equals("n")) {
-                System.out.printf("Opção inválida.\nJá existe uma lista com nome '%s'. Deseja sobrescrevê-la? [s/n] ", nomeArquivo);
-                opcao = scanner.nextLine().toLowerCase();
-            }
-            if (opcao.equals("s")) {
-                deveSalvar = true;
-            } else if (opcao.equals("n")) {
-                deveSalvar = false;
-            }
-        }
-        if (deveSalvar) {
-            try (FileWriter writer = new FileWriter(nomeArquivo + ".txt")) {
-                for (String item : lista.getItens()) {
-                    writer.write(item + "\n");
-                }
-                System.out.printf("Salvou a lista '%s' com sucesso.\n", nomeArquivo);
-                lista.setNome(nomeArquivo);
-            } catch (IOException e) {
-                System.out.println("Erro ao criar arquivo: " + e.getMessage());
-            }
-        } else {
-            return;
-        }
-    }
-    // Carregar lista:
-    public static ListaDeCompras carregar(String nomeArquivo) {
-        File arquivo = new File(nomeArquivo + ".txt");
-        if (!arquivo.exists()) {
-            return null;
-        }
-        ListaDeCompras lista = new ListaDeCompras(nomeArquivo);
-        try (Scanner scanner = new Scanner(arquivo)) {
-            while(scanner.hasNextLine()) {
-                lista.adicionar(scanner.nextLine());
-            }
-            System.out.printf("Lista '%s' importada com sucesso!\n", nomeArquivo);
-        } catch (FileNotFoundException e) {
-            System.out.println("Erro ao carregar arquivo: " + e.getMessage());
-            return null;
-        }
-        return lista;
-    }
+
+
 
     // MÉTODOS AUXILIARES ESPECÍFICOS:
     // Verificar se a lista já existe:
