@@ -35,8 +35,9 @@ public class ListaService {
         }
         scanner.nextLine(); // Limpar buffer
 
-        System.out.printf("\nItem '%s' removido com sucesso.\n", lista.getItens().get(item - 1));
+        String removido = lista.getItens().get(item -1);
         lista.remover(item - 1);
+        System.out.printf("\nItem '%s' removido com sucesso.\n", removido);
     }
 
     // Listar itens:
@@ -52,32 +53,22 @@ public class ListaService {
     // Salvar lista:
     public static void salvar(ListaDeCompras lista, String nomeArquivo, Scanner scanner) {
         File arquivo = new File(nomeArquivo + ".txt");
-        boolean deveSalvar = true;
         if (arquivo.exists()) {
             System.out.printf("Já existe uma lista com nome '%s'. Deseja sobrescrevê-la? [s/n] ", nomeArquivo);
-            String opcao = scanner.nextLine().toLowerCase();
-            while (!opcao.equals("s") && !opcao.equals("n")) {
-                System.out.printf("Opção inválida.\nJá existe uma lista com nome '%s'. Deseja sobrescrevê-la? [s/n] ", nomeArquivo);
-                opcao = scanner.nextLine().toLowerCase();
-            }
-            if (opcao.equals("s")) {
-                deveSalvar = true;
-            } else if (opcao.equals("n")) {
-                deveSalvar = false;
-            }
-        }
-        if (deveSalvar) {
-            try (FileWriter writer = new FileWriter(nomeArquivo + ".txt")) {
-                for (String item : lista.getItens()) {
-                    writer.write(item + "\n");
+            boolean opcao = ListaAuxiliares.validarEscolha(scanner);
+            if (opcao) {
+                try (FileWriter writer = new FileWriter(nomeArquivo + ".txt")) {
+                    for (String item : lista.getItens()) {
+                        writer.write(item + "\n");
+                    }
+                    System.out.printf("Salvou a lista '%s' com sucesso.\n", nomeArquivo);
+                    lista.setNome(nomeArquivo);
+                } catch (IOException e) {
+                    System.out.println("Erro ao criar arquivo: " + e.getMessage());
                 }
-                System.out.printf("Salvou a lista '%s' com sucesso.\n", nomeArquivo);
-                lista.setNome(nomeArquivo);
-            } catch (IOException e) {
-                System.out.println("Erro ao criar arquivo: " + e.getMessage());
+            } else {
+                return;
             }
-        } else {
-            return;
         }
     }
 
